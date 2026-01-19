@@ -25,6 +25,19 @@ int main(int argc, char*argv[]){
         return 1;
     }
 
-
+    if(strcmp(buf,"ftp")==0){
+        ssize_t send = sendto (sockfd, "yes", strlen("yes"), 0, (struct sockaddr*)&src_addr, src_addrlen);
+        if(send==-1){
+            printf("sent error\n");
+            return 1;
+        }
+    }else{
+        ssize_t send = sendto (sockfd, "no", strlen("no"), 0, (struct sockaddr*)&src_addr, src_addrlen);
+        if(send==-1){
+            printf("send error\n");
+            return 1;
+        }
+    }
+    
     return 0;
 }
