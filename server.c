@@ -1,17 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 int main(int argc, char*argv[]){
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <UDP listen port>\n", argv[0]);
+        return 1;
+    }
    
-    int bindReturnValue = bind(sockfd, (struct sockaddr*)&addr, sizeof(addr));
-    if (bindReturnValue==-1){
+   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+   if(sockfd==-1){
+       printf("socket initialization fails\n");
+   }
+    
+    struct sockaddr_in addr;
+    int port = atoi(argv[1]);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(MYPORT);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    memset(addr.sin_zero,'\0', sizeof(addr.sin_zero)); //from Beej's Guide to Network Programming page 25
+        
+    if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr))==-1){
         printf("bind fails\n");
         return 1;
     }
@@ -26,14 +44,14 @@ int main(int argc, char*argv[]){
     }
 
     if(strcmp(buf,"ftp")==0){
-        ssize_t send = sendto (sockfd, "yes", strlen("yes"), 0, (struct sockaddr*)&src_addr, src_addrlen);
-        if(send==-1){
-            printf("sent error\n");
+        ssize_t send1 = sendto (sockfd, "yes", strlen("yes"), 0, (struct sockaddr*)&src_addr, src_addrlen);
+        if(send1==-1){
+            printf("send error\n");
             return 1;
         }
     }else{
-        ssize_t send = sendto (sockfd, "no", strlen("no"), 0, (struct sockaddr*)&src_addr, src_addrlen);
-        if(send==-1){
+        ssize_t send1 = sendto (sockfd, "no", strlen("no"), 0, (struct sockaddr*)&src_addr, src_addrlen);
+        if(send1==-1){
             printf("send error\n");
             return 1;
         }
