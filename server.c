@@ -31,6 +31,7 @@ int main(int argc, char*argv[]){
         
     if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr))==-1){
         perror("bind fails\n");
+        close(sockfd);
         return 1;
     }
    
