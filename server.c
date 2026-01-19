@@ -19,18 +19,19 @@ int main(int argc, char*argv[]){
    
    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
    if(sockfd==-1){
-       perror("socket initialization fails\n");
+       perror("socket initialization fails");
+       return 1;
    }
     
     struct sockaddr_in addr;
     int port = atoi(argv[1]);
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(MYPORT);
+    addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    memset(addr.sin_zero,'\0', sizeof(addr.sin_zero)); //from Beej's Guide to Network Programming page 25
+    memset(addr.sin_zero,'0', sizeof(addr.sin_zero)); //from Beej's Guide to Network Programming page 25
         
     if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr))==-1){
-        perror("bind fails\n");
+        perror("bind fails");
         close(sockfd);
         return 1;
     }
@@ -40,7 +41,7 @@ int main(int argc, char*argv[]){
     socklen_t src_addrlen = sizeof(src_addr);
     ssize_t receive = recvfrom (sockfd, buf, sizeof(buf), 0, (struct sockaddr*)&src_addr, &src_addrlen);
     if(receive==-1){
-        perror("receive error\n");
+        perror("receive error");
         close (sockfd);
         return 1;
     }
@@ -48,13 +49,13 @@ int main(int argc, char*argv[]){
     if(strcmp(buf,"ftp")==0){
         ssize_t send1 = sendto (sockfd, "yes", strlen("yes"), 0, (struct sockaddr*)&src_addr, src_addrlen);
         if(send1==-1){
-            perror("send error\n");
+            perror("send error");
             return 1;
         }
     }else{
         ssize_t send1 = sendto (sockfd, "no", strlen("no"), 0, (struct sockaddr*)&src_addr, src_addrlen);
         if(send1==-1){
-            perror("send error\n");
+            perror("send error");
             return 1;
         }
     }
