@@ -41,6 +41,7 @@ int main(int argc, char*argv[]){
     ssize_t receive = recvfrom (sockfd, buf, sizeof(buf), 0, (struct sockaddr*)&src_addr, &src_addrlen);
     if(receive==-1){
         perror("receive error\n");
+        close (sockfd);
         return 1;
     }
 
