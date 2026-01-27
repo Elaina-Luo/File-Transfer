@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-
+#include <sys/time.h>
 #include <arpa/inet.h>
 
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     int sockfd;
     struct sockaddr_in server_addr;
     char buffer[BUF_SIZE];
-
+    struct timeval start, end;
     // opensocket
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         perror("socket failed");
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         close(sockfd); // closes the UDP socket before exiting
         exit(1);
     }
-
+    gettimeofday(&start, NULL);
     // Send "ftp" message to server
     sendto(sockfd, "ftp", strlen("ftp"), 0, (struct sockaddr*)&server_addr, sizeof(server_addr)); //sendto() is used with UDP (connectionless) to send a message.
 
@@ -74,7 +74,16 @@ int main(int argc, char *argv[]) {
         close(sockfd);
         exit(1);
     }
+    gettimeofday(&end, NULL);
+
     buffer[n] = '\0';
+
+    long sec = end.tv_sec - start.tv_sec;
+    long usec = end.tv_usec - start.tv_usec;
+    long rtt_us = sec * 1000000 + usec;
+
+    printf("RTT = %.3f ms\n",
+           rtt_us, rtt_us / 1000.0);
 
     if (strcmp(buffer, "yes") == 0) {
         printf("A file transfer can start.\n");
